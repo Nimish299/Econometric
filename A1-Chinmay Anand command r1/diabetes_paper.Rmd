@@ -1,0 +1,36 @@
+---
+output:
+  pdf_document:
+    includes:
+      before_body: title.sty
+      in_header: preamble.sty
+    keep_tex: yes
+    number_sections: yes
+    toc_depth: 2
+fontsize: 12pt
+bibliography: ref.bib
+csl: apa.csl
+nocite: |
+  @stargazer
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F, warning=F, message=F, cache = T)
+library(dplyr)
+library(olsrr)
+library(ggplot2); theme_set(theme_classic())
+library(GGally)
+library(papeR)
+library(stargazer)
+library(lmtest)
+library(MASS)
+library(texreg)
+library(broom)
+```
+
+```{r, child=c('sections/Introduction.Rmd', 'sections/LiteratureReview.Rmd', 'sections/DataSource.Rmd', 'sections/Regression.Rmd', 'sections/Conclusion.Rmd')}
+```
+
+# References
+
+<div id="refs"></div>

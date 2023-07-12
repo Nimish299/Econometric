@@ -1,0 +1,103 @@
+# Literature Review
+
+```{r, echo=F, results='asis'}
+df <- read.csv("../res/diabetes.csv")
+df %>% 
+  mutate(Outcome = factor(Outcome)) -> dff
+
+df_nz <- df %>% 
+  filter(Glucose > 0 & BloodPressure > 0 & SkinThickness > 0 & Insulin > 0 & BMI > 0) 
+
+df_nz_factor <- df_nz %>% mutate(Outcome = factor(Outcome))
+
+```
+
+## Paper 1
+
+> "Non-Communicable Disease Risk Factors and their Trends in India"
+
+By Suzanne Nethan, Dhirendra Sinha, and Ravi Mehrotra
+
+### About the Paper
+
+In this paper, @nethan2017non examine non-communicable diseases (NCD). It accounts for about 38 million (68%) deaths and 5.87 million (60%) worldwide. The paper discusses various national/state-level surveys in India, including single or multiple risk factors. Being overweight, obesity and tobacco use are all covered nationally.
+
+### Use Case
+
+As a result of reading this paper, we gained a deeper understanding of what we can expect from a research model as diabetes is a non-communicable disease.
+
+### Methodology
+
+Indicator definitions from the World Health Organization (WHO) for both urban and rural populations were used in the research. The percentage of the population covered by the polls for each risk factor was then calculated by adding the state-by-state population proportion and dividing it by the total Indian population. The previous and present data from the periodic surveys were also contrasted to evaluate changes in prevalence. PubMed, Google, and various surveillance systems were searched for this systematic study. Forty-one papers/survey reports from the search results were ultimately determined to be eligible-data on NCD risk variables from states and the nation.
+
+### Conclusion
+
+India has a much-delayed response to NCD risk factors surveillance, and information on the exact needs to be more consistent and complete. According to the result, India should plan for a cost and time-effective NCD surveillance system.
+
+## Paper 2
+
+> "Performance of Indian Diabetes Risk Score (IDRS) as a screening tool for diabetes in an urban slum"
+
+By Lt Col Puja Dudeja, Maj Gurpreet Singh, Maj Tukaram Gadekar, Air Cmde Sandip Mukherji
+
+### About the Paper
+
+To identify undetected Type 2 diabetes, the Madras Diabetes Research Foundation (MDRF) created the Indian Diabetes Risk Score (IDRS). As well as examining the prevalence of undiagnosed Type 2 diabetes in urban slums, this paper will examine how well the IDRS performs as a diagnostic tool.
+
+### Use Case
+
+As a result of reading this paper, we gained a deeper understanding of what we can expect from a research model.
+
+### Methodology
+
+Surveys were carried out in urban slum areas. A total of 155 IDRS observation tools were used to assess diabetes risk, including variables that can be adjusted (waist circumference, physical activity) and variables that cannot be modified (age, family history). Anthropometry data was collected. Using fasting blood sugar levels, diabetes was diagnosed.
+
+### Conclusion
+
+Using IDRS to the community can effectively detect un-diagnosed diabetes.
+
+## Paper 3
+
+> "Prevalence of Diabetes Mellitus and its risk factors"
+
+By Akula Sanjeevaiah, Akula Sushmitha, Thota Srikanth
+
+### About the Paper
+
+In this paper, @sanjeevaiah2019prevalence explore the prevalence of Diabetes Mellitus (DM) and its risk factors among the population of India. The study found a high prevalence of DM, particularly in urban areas and among those with a family history of the disease. The major risk factors identified were age, obesity, sedentary lifestyle, hypertension, and smoking. The paper highlights the need for early detection and effective management of DM to prevent complications and improve health outcomes.
+
+### Methodology
+
+The authors conducted a cross-sectional study for a period of 4 months with a sample size of 250. The basis for the selection of subjects was age greater than 15 years of both genders who are identified with diabetes. Measurements of height and weight were taken to estimate BMI, waist circumference and blood pressure.
+
+### Conclusion
+
+This paper concluded that age, waist circumference, hypertension, BMI, smoking habit and total cholesterol are noteworthy when comparing diabetic and non-diabetic subjects.
+
+## Paper 4
+> "Assessment of Diabetes Risk in an Adult Population Using Indian Diabetes Risk Score in an Urban Resettlement Colony of Delhi."
+
+By Acharya, Anita Shankar and Singh, Anshu and Dhiman, Balraj 
+
+### About the Paper
+@Acharya2017diabetes employed the Indian Diabetes Risk Score(IDRS) to assess the risk of individuals getting a positive diabetes diagnosis. Various socio-economic factors were taken into consideration alongside the IDRS score. 
+
+### Methodology
+In a cross-sectional survey of urban settlements in East Delhi, researchers sampled adults aged 30 or above of both genders, resulting in a total of 580 subjects. Employing the analytical capabilities of SPSS, the gathered data was examined. The survey assessed several factors, including but not limited to socio-economic status, physiological and psychological assessments, addiction habits, BMI, anthropometry, and IDRS scores. The socio-economic status was determined by utilizing the widely recognized *"Kuppuswamy Scale"*.
+
+### Conclusion
+The authors have arrived at the conclusion that over 90% of the surveyed study subjects were found to be at risk of developing diabetes, thereby emphasizing the criticality of early-stage screening to enable prompt interventions.
+
+## Paper 5
+> "Validity of Indian Diabetes Risk Score and its association with body mass index and glycosylated hemoglobin for screening of diabetes in and around areas of Lucknow"
+
+By Khan, Mohammad Mustufa and Sonkar, Gyanendra Kumar and Alam, Roshan and Mehrotra, Sudhir and Khan, M Salman and Kumar, Ajay and Sonkar, Satyendra Kumar
+
+### About the Paper
+@khan2017validity employ various risk factors such as waist size, age, level of physical activity amongst the individuals and their family history for screening obesity and abdominal obesity. Their primary aim in this paper is to assess the validity of *Indian Diabetes Risk Score (IDRS)* and its association with BMI.
+
+### Methodology
+The authors employed the a cross-sectional dataset along with the MDRF-IDRS risk score. They put heavy emphasis on the BMI level and the average glucose levels (which was retrieved using the *HbA1c* blood test) of the individuals in the dataset. These variables were then regressed and the regression coefficients were obtained; which were then tested for statistical significance using two-tailed tests at 5% level of significance.
+
+### Conclusion
+The authors found that 63.9% of 24% pre-diabetics and 77% percent of the 50.4% diabetics were at high risk of diabetes and diabetes complications respectively as per the MDRF-IDRS metric. The combination of the IDRS metric with BMI value as well as the HbA1c results can be used for monitoring for diabetes and obesity.

@@ -1,0 +1,7 @@
+# Conclusion
+
+In light of the aforementioned empirical inquiry, our endeavor was to explore the relation between distinct variables such as age, BMI, family history, insulin levels and the probability of receiving a favorable diagnosis for diabetes mellitus amongst Indian individuals.
+
+Drawing on the tenets of (robust) regression analysis performed on cross-sectional data, we demonstrated that blood glucose levels, age, family history and high number of pregnancies exhibited statistically significant effects on the likelihood of a positive diagnosis. These results are aligned with extant literature on the subject that also postulated analogous relationships between the said variables and the eventual diagnosis.
+
+That being said, we must underscore several limitations that warrant attention. First and foremost, we utilized a rudimentary cross-sectional dataset that precludes us from accounting for several non-quantitative variables such as sedentary behavior, psychological and physiological stress levels, among others, that could significantly impact blood glucose levels and thereby affect the final diagnosis. Second, we employed a linear probability model for the analysis, which may not be the most appropriate choice for binary dependent variables.

@@ -1,0 +1,137 @@
+# Regression
+
+```{r, results='asis'}
+# Regression
+fit <- lm(Outcome ~ PregnancyRange + 
+            SkinThickness +
+            Glucose +
+            BloodDummy +
+            SkinThickness +
+            Insulin +
+            log(DiabetesPedigreeFunction) +
+            Age +
+            BMI, 
+           df_nz)
+
+# Robust Regression
+robust <- rlm(Outcome ~ PregnancyRange + 
+            SkinThickness +
+            Glucose +
+            BloodDummy +
+            SkinThickness +
+            Insulin +
+            log(DiabetesPedigreeFunction) +
+            Age +
+            BMI, 
+           df_nz)
+stargazer(robust, title="Robust Regression Results", header=F, table.placement="H")
+```
+
+```{r}
+# Calculate R-squared and adjusted R-squared
+SST <- sum((df_nz$Outcome - mean(df_nz$Outcome))^2)
+SSE <- sum(robust$residuals^2)
+R2 <- 1 - SSE/SST
+n <- nrow(df_nz)
+p <- length(coefficients(robust)) - 1
+adjR2 <- 1 - SSE/(n - p - 1)/(SST/(n - 1))
+
+# Calculate the F-statistic
+F_stat <- (t(robust$coefficients) %*% solve(vcov(robust)) %*% robust$coefficients)/(p * summary(robust)$sigma^2)
+
+pval_f <- pf(F_stat, p, n - p - 1, lower.tail = F)
+
+matrix(c(R2, adjR2, F_stat, pval_f), nrow=4, ncol=1) %>% 
+  as.data.frame() -> results
+
+rownames(results) <- c("R-square", "Adj. R-square", "F-statistic", "p-value for F-test")
+colnames(results) <- "Value"
+
+knitr::kable(round(results, 4), caption = "Regression Statistics")
+
+```
+
+## Interpretation
+- The probability of a patient being diabetic increases by 0.007 in case his/her plasma glucose concentration (mg/dL) increases by 1 mg/dL. This result is along the expected lines. 
+- The probability of a person being diabetic increases by (0.098/100)% $\approx$ 0.00098% as their  Diabetes Pedigree Function increases by 1 unit. This is again on expected lines of common literature.
+- The probability of a person being diabetic increases by 0.008 with an increase of 1 year in the person's age. This supports our initial assumptions that with increase in age, the body is more likely to be affected by multiple medical conditions, including high blood pressure and high cholesterol and hence more prone to be diabetic.
+- If a patient's pregnancy range lies between 10 to 14, the probability of her being diabetic increases by 0.237. 
+- The increase in BMI by 1 unit increases the probability of the person being diabetic by 0.007.
+- The p-value for F test is close to zero which means we can reject our null hypothesis at all significance levels implying that all the variables together are jointly significant.
+
+### Significant Variables
+- At **99% Confidence Interval**: Glucose, log(DiabetesPedigreeFunction), Age
+- At **95%  Confidence Interval**: PregnancyRange(10,17] 
+- At **90%  Confidence Interval**: BMI
+
+### Insignificant Variables
+- Insulin, Skin Thickness, Blood Pressure, PregnancyRange(4,10]
+
+
+## Diagnostics
+
+### Test for Heteroskedasticity
+
+We're employing the **Breusch-Pagan Test** in order to check for heteroskedasticity.
+
+$$
+\begin{aligned}
+H_0 &: \textrm{Residuals have constant variance} \\
+H_a &: \textrm{Residuals have variable variance}
+\end{aligned}
+$$
+
+```{r}
+
+transpose <- function(df) {
+  df %>% 
+    as.matrix() %>% 
+    t() -> df1
+  
+  rownames(df1) <- colnames(df)
+  df1
+}
+
+robust %>% 
+  bptest() %>% 
+  tidy() %>% 
+  transpose() %>% 
+  knitr::kable(caption="BP Test Results")
+```
+
+Given the negligible p-value, the null hypothesis is rejected, and it may be inferred that Heteroskedasticity prevails in the system. In response, we have applied Robust Linear Regression as a remedy.
+
+### Test for Omitted Variable Bias
+
+We're going to employ the **Ramsey RESET Test** [@ramsey1969reset] to test for Omitted Variable Bias.
+
+$$
+\begin{aligned}
+H_0&: \textrm{Model has no omitted variables} \\
+H_a&: \textrm{Model has some omitted variables}
+\end{aligned}
+$$
+
+```{r}
+robust %>% 
+  resettest(power=2, type="fitted") %>% 
+  tidy() %>% 
+  transpose() %>% 
+  knitr::kable(caption="RESET Test Results")
+```
+
+With a p-value exceeding the 10% threshold, we are unable to reject the null hypothesis at a 10% level of significance. Thus, we may conclude that our model is not impacted by omitted variable bias.
+
+### Multicollinearity
+The presence of multicollinearity may be ascertained by computing the **Variation Inflation Factor** for each variable. Typically, a VIF exceeding 10 indicates the presence of multicollinearity amongst the variables.
+
+```{r}
+ols_vif_tol(fit) %>% 
+  mutate(Tolerance = round(Tolerance, 3),
+         VIF = round(VIF, 3)) %>% 
+  knitr::kable(caption = "VIF Values")
+```
+
+In light of the VIF values of less than 10 for all variables, it is reasonable to assert with confidence the absence of multicollinearity amongst the said variables.
+
+

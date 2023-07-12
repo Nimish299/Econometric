@@ -1,0 +1,163 @@
+# Data and Methodology
+
+It is with utmost pleasure that we elucidate upon the dataset made available by the esteemed National Institute of Diabetes and Digestive and Kidney Diseases, which is designed to predict the likelihood of a patient's susceptibility to diabetes based on specific diagnostic measurements. This dataset is a carefully selected subset of a larger database, wherein all patients are of Pima Indian ancestry and female, aged 21 years or older. The rationale behind this selection criteria is owing to the fact that the Pima Indians exhibit the highest incidence of type 2 diabetes worldwide [@booth2017policy].
+
+Our analysis aims to comprehensively examine the most significant factors that contribute to diabetes onset. The dataset comprises nine variables, which were meticulously chosen to ensure their relevance in predicting diabetes. We shall now deliberate on the chosen variables in detail.
+
+```{r, results='asis'}
+stargazer(df_nz_factor, 
+          title="Summary statistics of the dataset",
+          header=F, 
+          table.placement = 'H',
+          float = T)
+```
+
+```{r corr-plot, cache=T, fig.cap="Correlation Plot"}
+ggpairs(df_nz_factor, 
+        mapping=ggplot2::aes(color=Outcome),
+        lower=list(continuous = wrap("smooth", alpha=.3, size=.1)),
+        upper=list(
+          combo = wrap("box_no_facet", alpha=.5, outlier.size=.1),
+          continuous = wrap('cor', size=2)
+        ),
+        axisLabels = 'none'
+) + theme_grey()
+```
+
+## Outcome
+
+The first variable is the dependent variable, "Outcome", which takes binary values of 0 or 1, signifying non-diabetic and diabetic status, respectively.
+
+```{r, fig.cap="Outcome Variable Frequency", fig.width=3, fig.height=3}
+ggplot(df_nz, aes(x = factor(Outcome),fill=factor(Outcome))) +
+  labs(x="Outcome",y="Number of Observations")+
+  scale_x_discrete(labels = c("Non-Diabetic", "Diabetic"))+
+  theme(legend.position="none") +
+  geom_bar() 
+```
+
+The visualization under consideration provides a clear representation of the distribution of observations across two categories of an outcome variable. Specifically, we observe that out of the total 768 observations in the dataset, 500 individuals do not have diabetes, while 268 individuals do have diabetes.
+
+## Pregnancies
+
+The variable "Pregnancies" records the total number of pregnancies that the patient has experienced. Prior research has established a positive correlation between gestational diabetes mellitus and multiple pregnancies, with women with four or more pregnancies displaying a higher susceptibility to diabetes [@vaajala2023higher].
+
+### Pregnancy Dummy
+In analyzing our dataset, we have identified the presence of a categorical variable denoting pregnancy, with possible values ranging from 0 to 17. In order to appropriately model the influence of this variable, we have created a set of indicator variables that partition the range of pregnancies into three distinct intervals: [0,4], (4,10], and (10,17]. Within this framework, we have elected to designate the range [0,4] as the reference group, against which we will compare the effects of other pregnancy categories.
+
+```{r}
+df_nz$PregnancyRange <- cut(df_nz$Pregnancies, breaks = c(0, 4, 10, 17), include.lowest = T)
+
+table(df_nz$PregnancyRange) %>% 
+  knitr::kable()
+```
+
+## Glucose
+
+The "Glucose" variable records the plasma glucose concentration (mg/dL) over two hours following an oral glucose tolerance test. High fasting blood glucose concentrations are an indicator of an increased likelihood of developing diabetes. Normal fasting blood glucose concentrations range from 70 mg/dL to 100 mg/dL. Lifestyle changes are recommended if the value lies between 100-125 mg/dL, and diabetes is diagnosed if it exceeds this range.
+
+## Blood Pressure
+
+The "BloodPressure" variable records the average diastolic blood pressure level (mm/Hg) of the patient. Patients with hypertension exhibit insulin resistance and are at a higher risk of developing diabetes. A staggering 66% of diabetic individuals worldwide have blood pressure levels greater than 130/80 mm Hg or are diagnosed with hypertension [@petrie2018diabetes].
+
+```{r, fig.cap="Blood Pressure Distribution", fig.height=3, fig.width=5.5}
+ggplot(df_nz, aes(x = BloodPressure, fill = factor(Outcome))) +
+  labs(fill = "Outcome")+
+  scale_fill_discrete(labels = c("Non-Diabetic", "Diabetic"))+
+  geom_histogram(position = "identity", alpha = 0.6, bins=20)
+```
+
+### Blood Pressure Dummy
+Our analysis has incorporated a classification scheme that distinguishes between individuals with varying blood pressure levels. Specifically, we have defined four distinct categories based on the observed blood pressure values: hypotension for values between 0 and 60, normal for values between 60 and 80, pre-hypertension for values between 80 and 89, and hypertension for values exceeding 90. For the purposes of our analysis, we have selected the normal blood pressure range (60-80) as the reference group, against which we will assess the relative effects of other blood pressure categories.
+
+```{r}
+df_nz$BloodDummy <- cut(df_nz$BloodPressure, breaks = c(0, 60, 80, 89, 110), labels=c("Hypo","Normal", "Pre", "Hyper"))
+
+df_nz$BloodDummy <- relevel(df_nz$BloodDummy, ref="Normal")
+
+table(df_nz$BloodDummy) %>% 
+  knitr::kable()
+```
+
+## Skin Thickness
+
+The "SkinThickness" variable records the triceps skin fold thickness (mm) of the patient. In type-2 diabetes, insulin resistance affects subcutaneous tissue thickness. Previous research has indicated an association between diabetic patients and increased skin thickness [@jain2013evaluation].
+
+```{r, fig.cap="Skin Thickness Distribution", fig.height=3.5, fig.width=5}
+ggplot(df_nz, aes(factor(Outcome), SkinThickness, color = factor(Outcome)))+
+  geom_violin(data=subset(df_nz,SkinThickness>0)) +
+  geom_boxplot(data=subset(df_nz,SkinThickness>0),width = .2)+
+  labs(x="Outcome",y="Skin Thickness")+
+  scale_x_discrete(labels = c("Non-Diabetic", "Diabetic"))+
+  theme(legend.position="none")
+```
+
+The mean skin thickness in diabetic patients is found to be higher than that of non-diabetic individuals. The visual representation of the distribution through a violin plot indicates a distinct pattern, with the skin thickness of diabetic patients exhibiting a high degree of concentration around the median value, falling within the range of 30-40 mm. This finding suggests a potential avenue for further exploration of the mechanisms underlying the observed relationship between diabetes and skin thickness.
+
+## Insulin
+
+The "Insulin" variable records the result of the 2-hour serum insulin (µU/mL) level. Healthy individuals exhibit insulin levels between 5 and 15 µU/mL, whereas higher insulin levels are directly correlated with diabetes.
+
+## BMI
+
+The "BMI" variable records the body mass index of the patient. Overnutrition and obesity may result in insulin resistance, leading to increased glucose levels in the blood and eventually, diabetes. Research has shown that individuals with a BMI greater than 25 are more likely to develop diabetes.
+
+```{r, fig.cap="BMI Distribution", fig.height=3, fig.width=5.5}
+ggplot(df_nz, aes(x = BMI, fill = factor(Outcome))) +
+  labs(fill = "Outcome") +
+  scale_fill_discrete(labels = c("Non-Diabetic", "Diabetic" )) +
+  geom_histogram(data=subset(df_nz, BMI>0),
+                 position = "identity", alpha = 0.6) 
+```
+
+In the dataset, the BMI variable has values from 15 to around 70. The maximum number of patients without diabetes lie in the BMI range of 25 to 30. While a majority of those having diabetes have BMI in the range of 35 to 45.
+
+## Diabetes Pedigree Function
+
+The "DiabetesPedigreeFunction" variable measures the likelihood of becoming diabetic based on family history. A family tree is generated based on which a function is generated, assigning a high or low value based on the number of diabetic patients in the patient's family history [@massaro2022prediction].
+
+```{r, fig.cap="Diabetes Pedigree Function Distribution vs Output", fig.height=3, fig.width=5}
+ggplot(df_nz, aes(x = factor(Outcome),
+                     y = DiabetesPedigreeFunction,fill=factor(Outcome))) +
+  labs(x="Outcome",y="Diabetes Pedigree Function")+
+  scale_x_discrete(labels = c("Non-Diabetic", "Diabetic"))+
+  geom_boxplot(alpha=0.7)+
+  geom_jitter(alpha=0.23)+
+  theme(legend.position="none") +
+  scale_fill_brewer(palette="Dark2")
+```
+
+This function gives the risk or probability of getting diabetes based on family history, and diabetic patients have a higher mean value of diabetes pedigree function. This data indicates that there is a higher chance of the patient having diabetes if someone in his/her pedigree was diabetic.
+
+## Age
+
+Finally, the "Age" variable records the age of the patient. With age, individuals are more likely to develop multiple medical conditions, including high blood pressure and high cholesterol. Current literature suggests that middle-aged individuals are more likely to develop diabetes due to these indirect factors.
+
+```{r, figures-side, fig.cap="Age distribution", fig.show='hold', out.width='50%'}
+ggplot(df_nz, aes(x = Age, fill = factor(Outcome))) +
+  labs(fill = "Outcome")+
+  scale_fill_discrete(labels = c("Non-Diabetic", "Diabetic" ))+
+  geom_histogram(position = "identity", alpha = 0.6) + 
+  theme(legend.position = c(.77, .87), 
+        axis.title = element_text(size=18),
+        axis.text.y = element_text(size=14),
+        legend.title = element_text(size=16),
+        legend.text = element_text(size=16))
+
+ggplot(df_nz, aes(x = factor(Outcome), y = Age,fill=factor(Outcome))) +
+  labs(x="Outcome",y="Age")+
+  scale_x_discrete(labels = c("Non-Diabetic", "Diabetic"))+
+  geom_boxplot(alpha=0.6) +
+  theme(legend.position="none",
+        axis.title = element_text(size=18),
+        axis.text.y = element_text(size=14),
+        axis.text.x = element_text(size=16)) +
+  scale_fill_brewer(palette="Dark2")
+```
+
+In conclusion, this dataset is a valuable resource for predicting diabetes onset based on specific diagnostic measurements. Our analysis of the chosen variables underscores the significance of hypertension, insulin resistance, and family history in determining an individual's susceptibility to diabetes.
+
+## Methodology
+
+In consideration of the cross-sectional nature of the data, where the outcome variable assumes binary values of either 1 (diabetic) or 0 (non-diabetic), the use of a linear probability model is justified. 
+The regression coefficients reflect the extent to which a one-unit change in an independent variable influences the probability of the dependent variable.
